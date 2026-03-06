@@ -1,9 +1,11 @@
-import { Pet, UserSettings, ChatMessage } from '@/types/pet';
+import { Pet, UserSettings, ChatMessage, PetPlace } from '@/types/pet';
+import { mockPlaces } from '@/lib/mock-data';
 
 const PETS_KEY = 'mypet_pets';
 const SETTINGS_KEY = 'mypet_settings';
 const CHATS_KEY = 'mypet_chats';
 const LIKES_KEY = 'mypet_likes';
+const PLACES_KEY = 'mypet_places';
 
 export function getPets(): Pet[] {
   const data = localStorage.getItem(PETS_KEY);
