@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { getPets, deletePet, addPet, generateId } from '@/lib/storage';
 import { PET_AVATARS, SPECIES_OPTIONS } from '@/lib/mock-data';
 import { Pet } from '@/types/pet';
+import PetAvatar from '@/components/PetAvatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
