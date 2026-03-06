@@ -83,6 +83,22 @@ export function exportData(): string {
   }, null, 2);
 }
 
+export function getPlaces(): PetPlace[] {
+  const data = localStorage.getItem(PLACES_KEY);
+  if (!data) return [...mockPlaces];
+  return JSON.parse(data);
+}
+
+export function savePlaces(places: PetPlace[]) {
+  localStorage.setItem(PLACES_KEY, JSON.stringify(places));
+}
+
+export function addPlace(place: PetPlace) {
+  const places = getPlaces();
+  places.push(place);
+  savePlaces(places);
+}
+
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
