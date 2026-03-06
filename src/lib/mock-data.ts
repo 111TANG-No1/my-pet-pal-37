@@ -1,4 +1,4 @@
-import { DiscoverPet } from '@/types/pet';
+import { DiscoverPet, PetPlace } from '@/types/pet';
 
 const avatars = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮'];
 const names = ['皮皮', '豆豆', '小花', '旺财', '咪咪', '球球', '大黄', '雪球', '黑妞', '奶茶'];
