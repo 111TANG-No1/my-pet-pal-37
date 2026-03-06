@@ -1,17 +1,19 @@
 export interface Pet {
   id: string;
   name: string;
-  species: string; // 猫、狗、兔、仓鼠、鸟、爬行动物、其他
+  species: string;
   breed: string;
   gender: '公' | '母' | '未知';
   birthday: string;
   neutered: boolean;
   vaccinated: boolean;
   personality: string[];
+  temperamentNote: string;
   allergies: string[];
-  avatar: string; // emoji or base64
+  avatar: string; // emoji or base64 data URL
   medicalHistory: MedicalRecord[];
   reminders: Reminder[];
+  photos: PetPhoto[];
 }
 
 export interface MedicalRecord {
@@ -19,7 +21,7 @@ export interface MedicalRecord {
   date: string;
   symptom: string;
   note: string;
-  images: string[]; // base64 previews
+  images: string[];
 }
 
 export interface Reminder {
@@ -30,6 +32,14 @@ export interface Reminder {
   note: string;
   advanceDays: number;
   completed: boolean;
+}
+
+export interface PetPhoto {
+  id: string;
+  petId: string;
+  url: string; // base64 data URL
+  createdAt: number;
+  caption?: string;
 }
 
 export interface DiscoverPet {
