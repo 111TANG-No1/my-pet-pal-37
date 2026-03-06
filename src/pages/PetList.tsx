@@ -32,10 +32,12 @@ export default function PetList() {
       neutered: false,
       vaccinated: false,
       personality: [],
+      temperamentNote: '',
       allergies: [],
       avatar: form.avatar,
       medicalHistory: [],
       reminders: [],
+      photos: [],
     };
     addPet(pet);
     setPets(getPets());
