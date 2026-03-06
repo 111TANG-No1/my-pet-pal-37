@@ -42,3 +42,23 @@ export const PERSONALITY_OPTIONS = [
   '易紧张', '易兴奋', '需注意攻击性',
 ];
 export const PET_AVATARS = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮', '🐾', '🐇'];
+
+export const PLACE_CATEGORIES: PetPlace['category'][] = [
+  '医院/诊所', '宠物店/用品店', '猫咖/狗咖', '宠物友好餐厅', '宠物公园/遛宠点',
+];
+
+export const PLACE_CATEGORY_ICONS: Record<PetPlace['category'], string> = {
+  '医院/诊所': '🏥',
+  '宠物店/用品店': '🛒',
+  '猫咖/狗咖': '☕',
+  '宠物友好餐厅': '🍽️',
+  '宠物公园/遛宠点': '🌳',
+};
+
+export const mockPlaces: PetPlace[] = [
+  { id: 'place_1', name: '爱宠动物医院', category: '医院/诊所', address: '朝阳区建国路88号', phone: '010-12345678', hours: '09:00-21:00', lat: 39.9065, lng: 116.4120 },
+  { id: 'place_2', name: '宠乐汇宠物用品', category: '宠物店/用品店', address: '海淀区中关村大街12号', phone: '010-87654321', hours: '10:00-22:00', lat: 39.9010, lng: 116.4030 },
+  { id: 'place_3', name: '喵星人猫咖', category: '猫咖/狗咖', address: '东城区南锣鼓巷56号', hours: '11:00-22:00', lat: 39.9080, lng: 116.4010 },
+  { id: 'place_4', name: '汪汪乐园', category: '宠物公园/遛宠点', address: '朝阳公园南门内', lat: 39.9025, lng: 116.4150 },
+  { id: 'place_5', name: '友宠西餐厅', category: '宠物友好餐厅', address: '三里屯路19号', phone: '010-55667788', hours: '11:30-23:00', lat: 39.9055, lng: 116.4095 },
+];
