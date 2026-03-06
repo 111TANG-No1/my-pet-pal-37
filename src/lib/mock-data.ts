@@ -1,4 +1,4 @@
-import { DiscoverPet } from '@/types/pet';
+import { DiscoverPet, PetPlace } from '@/types/pet';
 
 const avatars = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮'];
 const names = ['皮皮', '豆豆', '小花', '旺财', '咪咪', '球球', '大黄', '雪球', '黑妞', '奶茶'];
@@ -34,5 +34,31 @@ export const mockDiscoverPets: DiscoverPet[] = names.map((name, i) => ({
 
 export const COMMON_ALLERGIES = ['牛肉', '鸡肉', '鱼', '谷物', '乳制品', '尘螨', '花粉', '跳蚤', '大豆', '玉米'];
 export const SPECIES_OPTIONS = ['狗', '猫', '兔', '仓鼠', '鸟', '爬行动物', '其他'];
-export const PERSONALITY_OPTIONS = ['活泼', '安静', '亲人', '独立', '温顺', '好奇', '粘人', '胆小', '聪明', '优雅'];
+export const PERSONALITY_OPTIONS = [
+  '亲人', '粘人', '独立', '怕生', '社牛', '温顺', '活泼', '安静',
+  '好奇', '胆小', '胆大', '警惕', '护食', '友善(对人)', '友善(对宠)',
+  '爱叫', '不爱叫', '精力旺盛', '懒散/爱睡', '训练友好',
+  '倔/固执', '爱玩玩具', '爱咬/爱啃', '爱拆家', '爱撒娇',
+  '易紧张', '易兴奋', '需注意攻击性',
+];
 export const PET_AVATARS = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮', '🐾', '🐇'];
+
+export const PLACE_CATEGORIES: PetPlace['category'][] = [
+  '医院/诊所', '宠物店/用品店', '猫咖/狗咖', '宠物友好餐厅', '宠物公园/遛宠点',
+];
+
+export const PLACE_CATEGORY_ICONS: Record<PetPlace['category'], string> = {
+  '医院/诊所': '🏥',
+  '宠物店/用品店': '🛒',
+  '猫咖/狗咖': '☕',
+  '宠物友好餐厅': '🍽️',
+  '宠物公园/遛宠点': '🌳',
+};
+
+export const mockPlaces: PetPlace[] = [
+  { id: 'place_1', name: '爱宠动物医院', category: '医院/诊所', address: '朝阳区建国路88号', phone: '010-12345678', hours: '09:00-21:00', lat: 39.9065, lng: 116.4120 },
+  { id: 'place_2', name: '宠乐汇宠物用品', category: '宠物店/用品店', address: '海淀区中关村大街12号', phone: '010-87654321', hours: '10:00-22:00', lat: 39.9010, lng: 116.4030 },
+  { id: 'place_3', name: '喵星人猫咖', category: '猫咖/狗咖', address: '东城区南锣鼓巷56号', hours: '11:00-22:00', lat: 39.9080, lng: 116.4010 },
+  { id: 'place_4', name: '汪汪乐园', category: '宠物公园/遛宠点', address: '朝阳公园南门内', lat: 39.9025, lng: 116.4150 },
+  { id: 'place_5', name: '友宠西餐厅', category: '宠物友好餐厅', address: '三里屯路19号', phone: '010-55667788', hours: '11:30-23:00', lat: 39.9055, lng: 116.4095 },
+];

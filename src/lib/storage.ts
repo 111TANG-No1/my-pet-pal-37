@@ -1,9 +1,11 @@
-import { Pet, UserSettings, ChatMessage } from '@/types/pet';
+import { Pet, UserSettings, ChatMessage, PetPlace } from '@/types/pet';
+import { mockPlaces } from '@/lib/mock-data';
 
 const PETS_KEY = 'mypet_pets';
 const SETTINGS_KEY = 'mypet_settings';
 const CHATS_KEY = 'mypet_chats';
 const LIKES_KEY = 'mypet_likes';
+const PLACES_KEY = 'mypet_places';
 
 export function getPets(): Pet[] {
   const data = localStorage.getItem(PETS_KEY);
@@ -79,6 +81,22 @@ export function exportData(): string {
     likes: getLikes(),
     chats: JSON.parse(localStorage.getItem(CHATS_KEY) || '{}'),
   }, null, 2);
+}
+
+export function getPlaces(): PetPlace[] {
+  const data = localStorage.getItem(PLACES_KEY);
+  if (!data) return [...mockPlaces];
+  return JSON.parse(data);
+}
+
+export function savePlaces(places: PetPlace[]) {
+  localStorage.setItem(PLACES_KEY, JSON.stringify(places));
+}
+
+export function addPlace(place: PetPlace) {
+  const places = getPlaces();
+  places.push(place);
+  savePlaces(places);
 }
 
 export function generateId(): string {

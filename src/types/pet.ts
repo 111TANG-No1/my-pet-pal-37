@@ -67,6 +67,19 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export type PlaceCategory = '医院/诊所' | '宠物店/用品店' | '猫咖/狗咖' | '宠物友好餐厅' | '宠物公园/遛宠点';
+
+export interface PetPlace {
+  id: string;
+  name: string;
+  category: PlaceCategory;
+  address: string;
+  phone?: string;
+  hours?: string;
+  lat: number;
+  lng: number;
+}
+
 export interface UserSettings {
   discoverEnabled: boolean;
 }
