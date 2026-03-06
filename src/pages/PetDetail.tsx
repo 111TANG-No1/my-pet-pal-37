@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Syringe, Shield, Edit, Trash2, Plus, X, Image, Bell } from 'lucide-react';
+import { ArrowLeft, Calendar, Edit, Trash2, Plus, X, Bell } from 'lucide-react';
 import { getPetById, updatePet, generateId } from '@/lib/storage';
 import { COMMON_ALLERGIES, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/lib/mock-data';
 import { Pet, MedicalRecord, Reminder } from '@/types/pet';
@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { format, differenceInDays, parseISO } from 'date-fns';
+import PetAvatar from '@/components/PetAvatar';
+import PhotoGallery from '@/components/PhotoGallery';
 
 export default function PetDetail() {
   const { id } = useParams();
@@ -31,8 +33,10 @@ export default function PetDetail() {
   useEffect(() => {
     if (id) {
       const p = getPetById(id);
-      if (p) setPet(p);
-      else navigate('/');
+      if (p) {
+        // Migrate old data missing new fields
+        setPet({ temperamentNote: '', photos: [], ...p });
+      } else navigate('/');
     }
   }, [id]);
 
@@ -114,9 +118,14 @@ export default function PetDetail() {
         <ArrowLeft className="h-4 w-4" /> 返回
       </button>
 
-      {/* Header */}
+      {/* Header with uploadable avatar */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="text-5xl w-16 h-16 flex items-center justify-center rounded-2xl bg-muted">{pet.avatar}</div>
+        <PetAvatar
+          avatar={pet.avatar}
+          size="md"
+          editable
+          onAvatarChange={(url) => save({ ...pet, avatar: url })}
+        />
         <div>
           <h1 className="text-xl font-bold">{pet.name}</h1>
           <p className="text-sm text-muted-foreground">{pet.species}{pet.breed ? `·${pet.breed}` : ''}</p>
@@ -124,8 +133,9 @@ export default function PetDetail() {
       </div>
 
       <Tabs defaultValue="health" className="w-full">
-        <TabsList className="w-full grid grid-cols-2">
+        <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="health">健康档案</TabsTrigger>
+          <TabsTrigger value="gallery">图库</TabsTrigger>
           <TabsTrigger value="reminders">提醒</TabsTrigger>
         </TabsList>
 
@@ -178,6 +188,15 @@ export default function PetDetail() {
                     ))}
                   </div>
                 </div>
+                <div>
+                  <Label className="text-xs mb-1 block">自定义性格描述</Label>
+                  <Textarea
+                    value={pet.temperamentNote}
+                    onChange={e => save({ ...pet, temperamentNote: e.target.value })}
+                    placeholder="用自己的话描述宠物的性格特点…"
+                    className="min-h-[60px]"
+                  />
+                </div>
               </div>
             ) : (
               <div className="space-y-2 text-sm">
@@ -193,6 +212,9 @@ export default function PetDetail() {
                   <div className="flex gap-1.5 flex-wrap">
                     {pet.personality.map(p => <Badge key={p} variant="secondary">{p}</Badge>)}
                   </div>
+                )}
+                {pet.temperamentNote && (
+                  <p className="text-muted-foreground text-xs leading-relaxed whitespace-pre-wrap">{pet.temperamentNote}</p>
                 )}
               </div>
             )}
@@ -304,8 +326,19 @@ export default function PetDetail() {
           </Dialog>
         </TabsContent>
 
+        {/* Gallery Tab */}
+        <TabsContent value="gallery" className="mt-4">
+          <Card className="p-4 space-y-3">
+            <h3 className="font-semibold">📸 {pet.name}的图库</h3>
+            <PhotoGallery
+              photos={pet.photos || []}
+              petId={pet.id}
+              onPhotosChange={(photos) => save({ ...pet, photos })}
+            />
+          </Card>
+        </TabsContent>
+
         <TabsContent value="reminders" className="space-y-6 mt-4">
-          {/* Next Reminder */}
           {nextReminder && (
             <Card className="p-4 bg-primary/5 border-primary/20">
               <div className="flex items-center gap-2 mb-1">
@@ -325,7 +358,6 @@ export default function PetDetail() {
             </Card>
           )}
 
-          {/* Reminder List */}
           <Card className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">提醒列表</h3>

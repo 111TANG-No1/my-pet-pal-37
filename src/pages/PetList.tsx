@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { getPets, deletePet, addPet, generateId } from '@/lib/storage';
 import { PET_AVATARS, SPECIES_OPTIONS } from '@/lib/mock-data';
 import { Pet } from '@/types/pet';
+import PetAvatar from '@/components/PetAvatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -31,10 +32,12 @@ export default function PetList() {
       neutered: false,
       vaccinated: false,
       personality: [],
+      temperamentNote: '',
       allergies: [],
       avatar: form.avatar,
       medicalHistory: [],
       reminders: [],
+      photos: [],
     };
     addPet(pet);
     setPets(getPets());
@@ -116,9 +119,7 @@ export default function PetList() {
               className="flex items-center gap-4 p-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
               onClick={() => navigate(`/pet/${pet.id}`)}
             >
-              <div className="text-4xl w-14 h-14 flex items-center justify-center rounded-2xl bg-muted">
-                {pet.avatar}
-              </div>
+              <PetAvatar avatar={pet.avatar} size="sm" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-base truncate">{pet.name}</h3>
                 <p className="text-sm text-muted-foreground">{pet.species}{pet.breed ? `·${pet.breed}` : ''}</p>
