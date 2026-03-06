@@ -34,5 +34,11 @@ export const mockDiscoverPets: DiscoverPet[] = names.map((name, i) => ({
 
 export const COMMON_ALLERGIES = ['牛肉', '鸡肉', '鱼', '谷物', '乳制品', '尘螨', '花粉', '跳蚤', '大豆', '玉米'];
 export const SPECIES_OPTIONS = ['狗', '猫', '兔', '仓鼠', '鸟', '爬行动物', '其他'];
-export const PERSONALITY_OPTIONS = ['活泼', '安静', '亲人', '独立', '温顺', '好奇', '粘人', '胆小', '聪明', '优雅'];
+export const PERSONALITY_OPTIONS = [
+  '亲人', '粘人', '独立', '怕生', '社牛', '温顺', '活泼', '安静',
+  '好奇', '胆小', '胆大', '警惕', '护食', '友善(对人)', '友善(对宠)',
+  '爱叫', '不爱叫', '精力旺盛', '懒散/爱睡', '训练友好',
+  '倔/固执', '爱玩玩具', '爱咬/爱啃', '爱拆家', '爱撒娇',
+  '易紧张', '易兴奋', '需注意攻击性',
+];
 export const PET_AVATARS = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮', '🐾', '🐇'];
