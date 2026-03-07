@@ -1,15 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { PawPrint, MapPin, Bell, User } from 'lucide-react';
+import { PawPrint, MessageSquare, Search, User } from 'lucide-react';
 
 const tabs = [
   { path: '/', label: '档案', icon: PawPrint },
-  { path: '/discover', label: '同城', icon: MapPin },
+  { path: '/assistant', label: '助手', icon: MessageSquare },
+  { path: '/discover', label: '发现', icon: Search },
   { path: '/mine', label: '我的', icon: User },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const hideTab = location.pathname.includes('/pet/') || location.pathname.includes('/chat/') || location.pathname.includes('/profile/');
+  const hideTab = location.pathname.includes('/pet/') || location.pathname.includes('/profile/') || location.pathname.includes('/board/') || location.pathname.includes('/friend-records');
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">

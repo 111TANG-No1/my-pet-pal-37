@@ -11,7 +11,6 @@ const personalities = [
 ];
 const distances = ['< 500m', '0.5~1km', '1~2km', '2~3km', '0.5~1km', '1~2km', '< 500m', '2~3km', '1~2km', '0.5~1km'];
 
-// Center around Beijing
 const baseLat = 39.9042;
 const baseLng = 116.4074;
 
@@ -29,7 +28,7 @@ export const mockDiscoverPets: DiscoverPet[] = names.map((name, i) => ({
   lat: baseLat + (Math.random() - 0.5) * 0.03,
   lng: baseLng + (Math.random() - 0.5) * 0.03,
   liked: false,
-  mutualLike: i === 0 || i === 3, // some have mutual likes for demo
+  mutualLike: i === 0 || i === 3,
 }));
 
 export const COMMON_ALLERGIES = ['牛肉', '鸡肉', '鱼', '谷物', '乳制品', '尘螨', '花粉', '跳蚤', '大豆', '玉米'];
@@ -44,7 +43,7 @@ export const PERSONALITY_OPTIONS = [
 export const PET_AVATARS = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮', '🐾', '🐇'];
 
 export const PLACE_CATEGORIES: PetPlace['category'][] = [
-  '医院/诊所', '宠物店/用品店', '猫咖/狗咖', '宠物友好餐厅', '宠物公园/遛宠点',
+  '医院/诊所', '宠物店/用品店', '猫咖/狗咖', '宠物友好餐厅', '宠物公园/遛宠点', '学校',
 ];
 
 export const PLACE_CATEGORY_ICONS: Record<PetPlace['category'], string> = {
@@ -53,6 +52,7 @@ export const PLACE_CATEGORY_ICONS: Record<PetPlace['category'], string> = {
   '猫咖/狗咖': '☕',
   '宠物友好餐厅': '🍽️',
   '宠物公园/遛宠点': '🌳',
+  '学校': '🏫',
 };
 
 export const mockPlaces: PetPlace[] = [
@@ -61,4 +61,30 @@ export const mockPlaces: PetPlace[] = [
   { id: 'place_3', name: '喵星人猫咖', category: '猫咖/狗咖', address: '东城区南锣鼓巷56号', hours: '11:00-22:00', lat: 39.9080, lng: 116.4010 },
   { id: 'place_4', name: '汪汪乐园', category: '宠物公园/遛宠点', address: '朝阳公园南门内', lat: 39.9025, lng: 116.4150 },
   { id: 'place_5', name: '友宠西餐厅', category: '宠物友好餐厅', address: '三里屯路19号', phone: '010-55667788', hours: '11:30-23:00', lat: 39.9055, lng: 116.4095 },
+  { id: 'place_6', name: '萌宠训练学校', category: '学校', address: '海淀区清华东路10号', phone: '010-99887766', hours: '08:00-18:00', lat: 39.9090, lng: 116.4050 },
 ];
+
+// 打招呼模板
+export const GREETING_TEMPLATES = [
+  '你好呀，想认识一下~', '你家宝贝好可爱！', '我们附近呢，一起遛弯？',
+  '你好！我也养了一只同品种的~', '想问问你家宝贝多大了？', '一起交个朋友吧！',
+];
+
+// AI 模板回复（离线模式）
+export const AI_TEMPLATE_REPLIES: Record<string, string[]> = {
+  health: [
+    '根据您的描述，建议先观察1-2天。如果症状持续或加重，建议尽快就医。',
+    '这个症状比较常见，建议保持环境清洁，注意饮食。如有异常及时就医。',
+    '建议记录好发病时间和症状变化，就医时方便医生判断。',
+  ],
+  feeding: [
+    '建议根据宠物年龄和体重选择适合的粮食，避免频繁更换。',
+    '训练时注意正向激励，可以用零食作为奖励，每次训练不超过15分钟。',
+    '幼犬/幼猫建议少食多餐，成年后可调整为每日2餐。',
+  ],
+  general: [
+    '您好！我是宠物AI助手，可以帮您解答宠物健康、喂养、训练等问题。',
+    '建议定期驱虫和疫苗接种，保持宠物健康。',
+    '请提供更多细节，我可以给出更有针对性的建议。',
+  ],
+};

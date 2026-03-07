@@ -1,4 +1,4 @@
-import { Pet, UserSettings, ChatMessage, PetPlace } from '@/types/pet';
+import { Pet, UserSettings, ChatMessage, PetPlace, BoardMessage, AIChatMessage } from '@/types/pet';
 import { mockPlaces } from '@/lib/mock-data';
 
 const PETS_KEY = 'mypet_pets';
@@ -6,6 +6,8 @@ const SETTINGS_KEY = 'mypet_settings';
 const CHATS_KEY = 'mypet_chats';
 const LIKES_KEY = 'mypet_likes';
 const PLACES_KEY = 'mypet_places';
+const BOARD_KEY = 'mypet_board';
+const AI_CHAT_KEY = 'mypet_ai_chat';
 
 export function getPets(): Pet[] {
   const data = localStorage.getItem(PETS_KEY);
@@ -80,6 +82,8 @@ export function exportData(): string {
     settings: getSettings(),
     likes: getLikes(),
     chats: JSON.parse(localStorage.getItem(CHATS_KEY) || '{}'),
+    board: getBoardMessages(),
+    aiChat: getAIChatHistory(),
   }, null, 2);
 }
 
@@ -97,6 +101,47 @@ export function addPlace(place: PetPlace) {
   const places = getPlaces();
   places.push(place);
   savePlaces(places);
+}
+
+// 留言板
+export function getBoardMessages(): BoardMessage[] {
+  const data = localStorage.getItem(BOARD_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveBoardMessages(msgs: BoardMessage[]) {
+  localStorage.setItem(BOARD_KEY, JSON.stringify(msgs));
+}
+
+export function addBoardMessage(msg: BoardMessage) {
+  const msgs = getBoardMessages();
+  msgs.push(msg);
+  saveBoardMessages(msgs);
+}
+
+export function getBoardMessagesForPet(toPetId: string): BoardMessage[] {
+  return getBoardMessages().filter(m => m.toPetId === toPetId);
+}
+
+export function getBoardMessagesSentByMe(): BoardMessage[] {
+  const myPetIds = getPets().map(p => p.id);
+  return getBoardMessages().filter(m => myPetIds.includes(m.fromPetId));
+}
+
+// AI 助手对话历史
+export function getAIChatHistory(): AIChatMessage[] {
+  const data = localStorage.getItem(AI_CHAT_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveAIChatHistory(msgs: AIChatMessage[]) {
+  localStorage.setItem(AI_CHAT_KEY, JSON.stringify(msgs));
+}
+
+export function addAIChatMessage(msg: AIChatMessage) {
+  const msgs = getAIChatHistory();
+  msgs.push(msg);
+  saveAIChatHistory(msgs);
 }
 
 export function generateId(): string {
