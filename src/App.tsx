@@ -6,9 +6,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 import PetList from "./pages/PetList";
 import PetDetail from "./pages/PetDetail";
+import Assistant from "./pages/Assistant";
 import Discover from "./pages/Discover";
 import PetProfile from "./pages/PetProfile";
-import Chat from "./pages/Chat";
+import MessageBoard from "./pages/MessageBoard";
+import FriendRecords from "./pages/FriendRecords";
 import Mine from "./pages/Mine";
 import NotFound from "./pages/NotFound";
 
@@ -24,9 +26,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<PetList />} />
             <Route path="/pet/:id" element={<PetDetail />} />
+            <Route path="/assistant" element={<Assistant />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/profile/:id" element={<PetProfile />} />
-            <Route path="/chat/:petId" element={<Chat />} />
+            <Route path="/board/:petId" element={<MessageBoard />} />
+            <Route path="/friend-records" element={<FriendRecords />} />
             <Route path="/mine" element={<Mine />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, PawPrint, Eye, EyeOff, ChevronRight } from 'lucide-react';
+import { Download, PawPrint, Eye, EyeOff, ChevronRight, Users } from 'lucide-react';
 import { getSettings, saveSettings, exportData, getPets } from '@/lib/storage';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -49,6 +49,19 @@ export default function Mine() {
           </div>
         </Card>
 
+        <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/friend-records')}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium">宠友记录</p>
+                <p className="text-xs text-muted-foreground">查看点赞、互赞、留言</p>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </Card>
+
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -76,7 +89,7 @@ export default function Mine() {
         </Card>
 
         <div className="text-center py-8 text-xs text-muted-foreground">
-          <p>MyPet v1.0</p>
+          <p>MyPet v1.1</p>
           <p>所有数据存储在本地浏览器中</p>
         </div>
       </div>
