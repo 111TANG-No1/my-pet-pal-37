@@ -318,7 +318,7 @@ export default function Discover() {
               <Select value={placeForm.category} onValueChange={v => setPlaceForm(f => ({ ...f, category: v as PlaceCategory }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {PLACE_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{PLACE_CATEGORY_ICONS[cat]} {cat}</SelectItem>)}
+                  {PLACE_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{PLACE_CATEGORY_ICONS[cat]} {PLACE_CATEGORY_LABELS[cat]}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

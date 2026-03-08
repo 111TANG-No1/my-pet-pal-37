@@ -1,4 +1,4 @@
-import { DiscoverPet, PetPlace } from '@/types/pet';
+import { DiscoverPet, PetPlace, PlaceCategory } from '@/types/pet';
 
 const avatars = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮'];
 const names = ['皮皮', '豆豆', '小花', '旺财', '咪咪', '球球', '大黄', '雪球', '黑妞', '奶茶'];
@@ -42,11 +42,21 @@ export const PERSONALITY_OPTIONS = [
 ];
 export const PET_AVATARS = ['🐕', '🐈', '🐰', '🐹', '🦜', '🐢', '🐩', '🐈‍⬛', '🐕‍🦺', '🦮', '🐾', '🐇'];
 
-export const PLACE_CATEGORIES: PetPlace['category'][] = [
+export const PLACE_CATEGORIES: PlaceCategory[] = [
   '医院/诊所', '宠物店/用品店', '猫咖/狗咖', '宠物友好餐厅', '宠物公园/遛宠点', '学校',
 ];
 
-export const PLACE_CATEGORY_ICONS: Record<PetPlace['category'], string> = {
+// 地点类别展示名称映射（内部枚举值→展示文案）
+export const PLACE_CATEGORY_LABELS: Record<PlaceCategory, string> = {
+  '医院/诊所': '医院/诊所',
+  '宠物店/用品店': '宠物店/用品店',
+  '猫咖/狗咖': '猫咖/狗咖',
+  '宠物友好餐厅': '宠物友好餐厅',
+  '宠物公园/遛宠点': '宠物公园/遛宠点',
+  '学校': '宠物学校',
+};
+
+export const PLACE_CATEGORY_ICONS: Record<PlaceCategory, string> = {
   '医院/诊所': '🏥',
   '宠物店/用品店': '🛒',
   '猫咖/狗咖': '☕',
@@ -66,8 +76,12 @@ export const mockPlaces: PetPlace[] = [
 
 // 打招呼模板
 export const GREETING_TEMPLATES = [
-  '你好呀，想认识一下~', '你家宝贝好可爱！', '我们附近呢，一起遛弯？',
-  '你好！我也养了一只同品种的~', '想问问你家宝贝多大了？', '一起交个朋友吧！',
+  '你好呀，想认识一下～',
+  '我们也在附近遛宠，周末要不要约公园？',
+  '你家宝宝好可爱！想交流下养宠经验',
+  '你家也是这个品种吗？感觉很有缘',
+  '方便问下宝宝多大了？',
+  '一起交个朋友吧！',
 ];
 
 // AI 模板回复（离线模式）

@@ -51,7 +51,7 @@ export default function PetProfile() {
           <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
           {isLiked ? '已点赞' : '点赞'}
         </Button>
-        <Button variant="outline" className="flex-1" onClick={() => navigate(`/board/${pet.id}`)}>
+        <Button variant="outline" className="flex-1" onClick={() => navigate(`/chat/${pet.id}`)}>
           <MessageCircle className="h-4 w-4 mr-1" /> 打招呼
         </Button>
       </div>
