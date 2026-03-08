@@ -85,7 +85,7 @@ export interface UserSettings {
   discoverEnabled: boolean;
 }
 
-// 留言板消息
+// 留言板消息（旧版，保留兼容）
 export interface BoardMessage {
   id: string;
   toPetId: string;
@@ -101,7 +101,25 @@ export interface AIChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'error';
   text: string;
-  petId?: string; // @本条宠物
+  petId?: string;
   timestamp: number;
   images?: string[];
+}
+
+// 聊天线程
+export interface ChatThread {
+  threadId: string;
+  myPetId: string;
+  peerPetId: string;
+  createdAt: number;
+  lastMessageAt: number;
+}
+
+// 聊天消息（微信式）
+export interface ThreadMessage {
+  id: string;
+  threadId: string;
+  sender: 'me' | 'peer';
+  text: string;
+  createdAt: number;
 }

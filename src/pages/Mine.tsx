@@ -55,7 +55,7 @@ export default function Mine() {
               <Users className="h-5 w-5 text-primary" />
               <div>
                 <p className="font-medium">宠友记录</p>
-                <p className="text-xs text-muted-foreground">查看点赞、互赞、留言</p>
+                <p className="text-xs text-muted-foreground">查看点赞、互赞、聊天</p>
               </div>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -89,7 +89,7 @@ export default function Mine() {
         </Card>
 
         <div className="text-center py-8 text-xs text-muted-foreground">
-          <p>MyPet v1.1</p>
+          <p>MyPet v1.2</p>
           <p>所有数据存储在本地浏览器中</p>
         </div>
       </div>

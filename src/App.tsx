@@ -9,7 +9,7 @@ import PetDetail from "./pages/PetDetail";
 import Assistant from "./pages/Assistant";
 import Discover from "./pages/Discover";
 import PetProfile from "./pages/PetProfile";
-import MessageBoard from "./pages/MessageBoard";
+import ChatThread from "./pages/ChatThread";
 import FriendRecords from "./pages/FriendRecords";
 import Mine from "./pages/Mine";
 import NotFound from "./pages/NotFound";
@@ -29,7 +29,8 @@ const App = () => (
             <Route path="/assistant" element={<Assistant />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/profile/:id" element={<PetProfile />} />
-            <Route path="/board/:petId" element={<MessageBoard />} />
+            <Route path="/chat/:petId" element={<ChatThread />} />
+            <Route path="/board/:petId" element={<ChatThread />} />
             <Route path="/friend-records" element={<FriendRecords />} />
             <Route path="/mine" element={<Mine />} />
             <Route path="*" element={<NotFound />} />

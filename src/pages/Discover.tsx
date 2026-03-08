@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, List, Map, Filter, Heart, Plus, Phone, Clock, Search, X } from 'lucide-react';
-import { mockDiscoverPets, PLACE_CATEGORIES, PLACE_CATEGORY_ICONS } from '@/lib/mock-data';
+import { mockDiscoverPets, PLACE_CATEGORIES, PLACE_CATEGORY_ICONS, PLACE_CATEGORY_LABELS } from '@/lib/mock-data';
 import { getLikes, toggleLike, getSettings, getPlaces, addPlace, generateId } from '@/lib/storage';
 import { PetPlace, PlaceCategory } from '@/types/pet';
 import { Badge } from '@/components/ui/badge';
@@ -259,7 +259,7 @@ export default function Discover() {
           <div className="flex flex-wrap gap-1.5">
             {PLACE_CATEGORIES.map(cat => (
               <Badge key={cat} variant={visibleCategories.has(cat) ? 'default' : 'outline'} className="cursor-pointer text-xs" onClick={() => toggleCategory(cat)}>
-                {PLACE_CATEGORY_ICONS[cat]} {cat}
+                {PLACE_CATEGORY_ICONS[cat]} {PLACE_CATEGORY_LABELS[cat]}
               </Badge>
             ))}
           </div>
@@ -281,7 +281,7 @@ export default function Discover() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-sm">{place.name}</span>
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0">{place.category}</Badge>
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0">{PLACE_CATEGORY_LABELS[place.category]}</Badge>
                       </div>
                       <div className="flex items-center gap-1 mt-0.5">
                         <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
@@ -318,7 +318,7 @@ export default function Discover() {
               <Select value={placeForm.category} onValueChange={v => setPlaceForm(f => ({ ...f, category: v as PlaceCategory }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {PLACE_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{PLACE_CATEGORY_ICONS[cat]} {cat}</SelectItem>)}
+                  {PLACE_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{PLACE_CATEGORY_ICONS[cat]} {PLACE_CATEGORY_LABELS[cat]}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

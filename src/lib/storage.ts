@@ -1,4 +1,4 @@
-import { Pet, UserSettings, ChatMessage, PetPlace, BoardMessage, AIChatMessage } from '@/types/pet';
+import { Pet, UserSettings, ChatMessage, PetPlace, BoardMessage, AIChatMessage, ChatThread, ThreadMessage } from '@/types/pet';
 import { mockPlaces } from '@/lib/mock-data';
 
 const PETS_KEY = 'mypet_pets';
@@ -8,6 +8,8 @@ const LIKES_KEY = 'mypet_likes';
 const PLACES_KEY = 'mypet_places';
 const BOARD_KEY = 'mypet_board';
 const AI_CHAT_KEY = 'mypet_ai_chat';
+const THREADS_KEY = 'mypet_threads';
+const THREAD_MSGS_KEY = 'mypet_thread_msgs';
 
 export function getPets(): Pet[] {
   const data = localStorage.getItem(PETS_KEY);
@@ -84,6 +86,7 @@ export function exportData(): string {
     chats: JSON.parse(localStorage.getItem(CHATS_KEY) || '{}'),
     board: getBoardMessages(),
     aiChat: getAIChatHistory(),
+    threads: getThreads(),
   }, null, 2);
 }
 
@@ -103,7 +106,7 @@ export function addPlace(place: PetPlace) {
   savePlaces(places);
 }
 
-// 留言板
+// 留言板（旧版，保留兼容）
 export function getBoardMessages(): BoardMessage[] {
   const data = localStorage.getItem(BOARD_KEY);
   return data ? JSON.parse(data) : [];
@@ -142,6 +145,55 @@ export function addAIChatMessage(msg: AIChatMessage) {
   const msgs = getAIChatHistory();
   msgs.push(msg);
   saveAIChatHistory(msgs);
+}
+
+// ===== 聊天线程 =====
+export function getThreads(): ChatThread[] {
+  const data = localStorage.getItem(THREADS_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveThreads(threads: ChatThread[]) {
+  localStorage.setItem(THREADS_KEY, JSON.stringify(threads));
+}
+
+export function getOrCreateThread(myPetId: string, peerPetId: string): ChatThread {
+  const threads = getThreads();
+  let thread = threads.find(t => t.myPetId === myPetId && t.peerPetId === peerPetId);
+  if (!thread) {
+    thread = {
+      threadId: generateId(),
+      myPetId,
+      peerPetId,
+      createdAt: Date.now(),
+      lastMessageAt: Date.now(),
+    };
+    threads.push(thread);
+    saveThreads(threads);
+  }
+  return thread;
+}
+
+export function updateThreadLastMessage(threadId: string) {
+  const threads = getThreads();
+  const t = threads.find(th => th.threadId === threadId);
+  if (t) {
+    t.lastMessageAt = Date.now();
+    saveThreads(threads);
+  }
+}
+
+export function getThreadMessages(threadId: string): ThreadMessage[] {
+  const all = JSON.parse(localStorage.getItem(THREAD_MSGS_KEY) || '{}');
+  return all[threadId] || [];
+}
+
+export function addThreadMessage(msg: ThreadMessage) {
+  const all = JSON.parse(localStorage.getItem(THREAD_MSGS_KEY) || '{}');
+  if (!all[msg.threadId]) all[msg.threadId] = [];
+  all[msg.threadId].push(msg);
+  localStorage.setItem(THREAD_MSGS_KEY, JSON.stringify(all));
+  updateThreadLastMessage(msg.threadId);
 }
 
 export function generateId(): string {

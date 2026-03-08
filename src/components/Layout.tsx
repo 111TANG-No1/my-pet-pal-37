@@ -10,7 +10,7 @@ const tabs = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const hideTab = location.pathname.includes('/pet/') || location.pathname.includes('/profile/') || location.pathname.includes('/board/') || location.pathname.includes('/friend-records');
+  const hideTab = location.pathname.includes('/pet/') || location.pathname.includes('/profile/') || location.pathname.includes('/chat/') || location.pathname.includes('/board/') || location.pathname.includes('/friend-records');
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto">
