@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, List, Map, Filter, Heart, Plus, Phone, Clock, Search, X } from 'lucide-react';
 import { mockDiscoverPets, PLACE_CATEGORIES, PLACE_CATEGORY_ICONS, PLACE_CATEGORY_LABELS } from '@/lib/mock-data';
-import { getLikes, toggleLike, getSettings, getPlaces, addPlace, generateId } from '@/lib/storage';
+import { getLikes, toggleLike, getSettings, getPlaces, addPlace, generateId, searchPlaces } from '@/lib/storage';
 import { PetPlace, PlaceCategory } from '@/types/pet';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -41,14 +41,12 @@ export default function Discover() {
     return true;
   });
 
-  const filteredPlaces = places.filter(p => {
-    if (!visibleCategories.has(p.category)) return false;
-    if (placeSearch.trim()) {
-      const q = placeSearch.toLowerCase();
-      return p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.address.toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q));
-    }
-    return true;
-  });
+  // 地点过滤：先按类别筛选，再按搜索词（含同义词）过滤+排序
+  const filteredPlaces = (() => {
+    const categoryFiltered = places.filter(p => visibleCategories.has(p.category));
+    if (!placeSearch.trim()) return categoryFiltered;
+    return searchPlaces(categoryFiltered, placeSearch);
+  })();
 
   const handleLike = (e: React.MouseEvent, petId: string) => {
     e.stopPropagation();
@@ -127,7 +125,8 @@ export default function Discover() {
             html: `<div style="font-size:20px;text-align:center;background:white;border-radius:50%;width:32px;height:32px;line-height:32px;box-shadow:0 2px 6px rgba(0,0,0,0.2)">${emoji}</div>`,
             className: 'bg-transparent', iconSize: [32, 32],
           });
-          let popup = `<b>${emoji} ${place.name}</b><br/><span style="color:#888;font-size:12px">${place.category}</span><br/>${place.address}`;
+          const label = PLACE_CATEGORY_LABELS[place.category] || place.category;
+          let popup = `<b>${emoji} ${place.name}</b><br/><span style="color:#888;font-size:12px">${label}</span><br/>${place.address}`;
           if (place.phone) popup += `<br/>📞 ${place.phone}`;
           if (place.hours) popup += `<br/>🕐 ${place.hours}`;
           L.marker([place.lat, place.lng], { icon }).addTo(map).bindPopup(popup);
@@ -243,7 +242,7 @@ export default function Discover() {
               <Input
                 value={placeSearch}
                 onChange={e => setPlaceSearch(e.target.value)}
-                placeholder="搜索名称/类别/地址..."
+                placeholder="搜索名称/类别/地址/标签..."
                 className="pl-9 h-9"
               />
               {placeSearch && (
@@ -264,7 +263,8 @@ export default function Discover() {
             ))}
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-muted-foreground">{filteredPlaces.length} 个地点</span>
             <Button variant="outline" size="sm" onClick={() => setAddPlaceOpen(true)}>
               <Plus className="h-4 w-4 mr-1" />新增地点
             </Button>
@@ -291,6 +291,11 @@ export default function Discover() {
                         {place.phone && <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Phone className="h-3 w-3" />{place.phone}</span>}
                         {place.hours && <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Clock className="h-3 w-3" />{place.hours}</span>}
                       </div>
+                      {place.tags && place.tags.length > 0 && (
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {place.tags.map(tag => <Badge key={tag} variant="outline" className="text-xs px-1 py-0">{tag}</Badge>)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
