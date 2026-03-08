@@ -259,7 +259,7 @@ export default function Discover() {
           <div className="flex flex-wrap gap-1.5">
             {PLACE_CATEGORIES.map(cat => (
               <Badge key={cat} variant={visibleCategories.has(cat) ? 'default' : 'outline'} className="cursor-pointer text-xs" onClick={() => toggleCategory(cat)}>
-                {PLACE_CATEGORY_ICONS[cat]} {cat}
+                {PLACE_CATEGORY_ICONS[cat]} {PLACE_CATEGORY_LABELS[cat]}
               </Badge>
             ))}
           </div>
