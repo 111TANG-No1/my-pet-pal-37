@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, List, Map, Filter, Heart, Plus, Phone, Clock, Search, X } from 'lucide-react';
-import { mockDiscoverPets, PLACE_CATEGORIES, PLACE_CATEGORY_ICONS } from '@/lib/mock-data';
+import { mockDiscoverPets, PLACE_CATEGORIES, PLACE_CATEGORY_ICONS, PLACE_CATEGORY_LABELS } from '@/lib/mock-data';
 import { getLikes, toggleLike, getSettings, getPlaces, addPlace, generateId } from '@/lib/storage';
 import { PetPlace, PlaceCategory } from '@/types/pet';
 import { Badge } from '@/components/ui/badge';
