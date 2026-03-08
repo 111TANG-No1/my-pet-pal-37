@@ -281,7 +281,7 @@ export default function Discover() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-sm">{place.name}</span>
-                        <Badge variant="secondary" className="text-xs px-1.5 py-0">{place.category}</Badge>
+                        <Badge variant="secondary" className="text-xs px-1.5 py-0">{PLACE_CATEGORY_LABELS[place.category]}</Badge>
                       </div>
                       <div className="flex items-center gap-1 mt-0.5">
                         <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
