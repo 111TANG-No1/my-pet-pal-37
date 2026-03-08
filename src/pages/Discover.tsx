@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, List, Map, Filter, Heart, Plus, Phone, Clock, Search, X } from 'lucide-react';
 import { mockDiscoverPets, PLACE_CATEGORIES, PLACE_CATEGORY_ICONS, PLACE_CATEGORY_LABELS } from '@/lib/mock-data';
@@ -7,13 +7,13 @@ import { PetPlace, PlaceCategory } from '@/types/pet';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LeafletMap from '@/components/LeafletMap';
 
 export default function Discover() {
   const navigate = useNavigate();
@@ -27,11 +27,8 @@ export default function Discover() {
   const [placeForm, setPlaceForm] = useState({ name: '', category: '医院/诊所' as PlaceCategory, address: '', phone: '', hours: '' });
   const [placeSearch, setPlaceSearch] = useState('');
   const [activeTab, setActiveTab] = useState('pets');
-  const petMapRef = useRef<HTMLDivElement>(null);
-  const placeMapRef = useRef<HTMLDivElement>(null);
-  const petMapInstanceRef = useRef<any>(null);
-  const placeMapInstanceRef = useRef<any>(null);
-  const settings = getSettings();
+  const [petMapKey, setPetMapKey] = useState(0);
+  const [placeMapKey, setPlaceMapKey] = useState(0);
 
   const filteredPets = mockDiscoverPets.filter(p => {
     if (filters.species && p.species !== filters.species) return false;
@@ -41,12 +38,30 @@ export default function Discover() {
     return true;
   });
 
-  // 地点过滤：先按类别筛选，再按搜索词（含同义词）过滤+排序
   const filteredPlaces = (() => {
     const categoryFiltered = places.filter(p => visibleCategories.has(p.category));
     if (!placeSearch.trim()) return categoryFiltered;
     return searchPlaces(categoryFiltered, placeSearch);
   })();
+
+  const petMarkers = useMemo(() => filteredPets.map(pet => ({
+    lat: pet.lat, lng: pet.lng,
+    iconHtml: `<div style="font-size:24px;text-align:center">${pet.avatar}</div>`,
+    popupHtml: `<b>${pet.name}</b><br/>${pet.species}·${pet.breed}<br/>${pet.distance}`,
+  })), [filteredPets]);
+
+  const placeMarkers = useMemo(() => filteredPlaces.map(place => {
+    const emoji = PLACE_CATEGORY_ICONS[place.category];
+    const label = PLACE_CATEGORY_LABELS[place.category] || place.category;
+    let popup = `<b>${emoji} ${place.name}</b><br/><span style="color:#888;font-size:12px">${label}</span><br/>${place.address}`;
+    if (place.phone) popup += `<br/>📞 ${place.phone}`;
+    if (place.hours) popup += `<br/>🕐 ${place.hours}`;
+    return {
+      lat: place.lat, lng: place.lng,
+      iconHtml: `<div style="font-size:20px;text-align:center;background:white;border-radius:50%;width:32px;height:32px;line-height:32px;box-shadow:0 2px 6px rgba(0,0,0,0.2)">${emoji}</div>`,
+      popupHtml: popup,
+    };
+  }), [filteredPlaces]);
 
   const handleLike = (e: React.MouseEvent, petId: string) => {
     e.stopPropagation();
@@ -79,69 +94,15 @@ export default function Discover() {
     setAddPlaceOpen(false);
   };
 
-  // Pet map
-  useEffect(() => {
-    if (activeTab === 'pets' && petView === 'map' && petMapRef.current && !petMapInstanceRef.current) {
-      import('leaflet').then(L => {
-        if (!document.querySelector('link[href*="leaflet"]')) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          document.head.appendChild(link);
-        }
-        const map = L.map(petMapRef.current!).setView([39.9042, 116.4074], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-        filteredPets.forEach(pet => {
-          const icon = L.divIcon({ html: `<div style="font-size:24px;text-align:center">${pet.avatar}</div>`, className: 'bg-transparent', iconSize: [32, 32] });
-          L.marker([pet.lat, pet.lng], { icon }).addTo(map).bindPopup(`<b>${pet.name}</b><br/>${pet.species}·${pet.breed}<br/>${pet.distance}`);
-        });
-        petMapInstanceRef.current = map;
-        setTimeout(() => map.invalidateSize(), 100);
-      });
-    }
-    return () => {
-      if ((activeTab !== 'pets' || petView !== 'map') && petMapInstanceRef.current) {
-        petMapInstanceRef.current.remove();
-        petMapInstanceRef.current = null;
-      }
-    };
-  }, [activeTab, petView, filteredPets]);
+  const handlePetViewChange = (v: 'list' | 'map') => {
+    setPetView(v);
+    if (v === 'map') setPetMapKey(k => k + 1);
+  };
 
-  // Place map
-  useEffect(() => {
-    if (activeTab === 'places' && placeView === 'map' && placeMapRef.current && !placeMapInstanceRef.current) {
-      import('leaflet').then(L => {
-        if (!document.querySelector('link[href*="leaflet"]')) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          document.head.appendChild(link);
-        }
-        const map = L.map(placeMapRef.current!).setView([39.9042, 116.4074], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-        filteredPlaces.forEach(place => {
-          const emoji = PLACE_CATEGORY_ICONS[place.category];
-          const icon = L.divIcon({
-            html: `<div style="font-size:20px;text-align:center;background:white;border-radius:50%;width:32px;height:32px;line-height:32px;box-shadow:0 2px 6px rgba(0,0,0,0.2)">${emoji}</div>`,
-            className: 'bg-transparent', iconSize: [32, 32],
-          });
-          const label = PLACE_CATEGORY_LABELS[place.category] || place.category;
-          let popup = `<b>${emoji} ${place.name}</b><br/><span style="color:#888;font-size:12px">${label}</span><br/>${place.address}`;
-          if (place.phone) popup += `<br/>📞 ${place.phone}`;
-          if (place.hours) popup += `<br/>🕐 ${place.hours}`;
-          L.marker([place.lat, place.lng], { icon }).addTo(map).bindPopup(popup);
-        });
-        placeMapInstanceRef.current = map;
-        setTimeout(() => map.invalidateSize(), 100);
-      });
-    }
-    return () => {
-      if ((activeTab !== 'places' || placeView !== 'map') && placeMapInstanceRef.current) {
-        placeMapInstanceRef.current.remove();
-        placeMapInstanceRef.current = null;
-      }
-    };
-  }, [activeTab, placeView, filteredPlaces]);
+  const handlePlaceViewChange = (v: 'list' | 'map') => {
+    setPlaceView(v);
+    if (v === 'map') setPlaceMapKey(k => k + 1);
+  };
 
   const ViewToggle = ({ view, setView }: { view: 'list' | 'map'; setView: (v: 'list' | 'map') => void }) => (
     <div className="flex gap-1 bg-muted rounded-lg p-0.5">
@@ -166,7 +127,6 @@ export default function Discover() {
           <TabsTrigger value="places">📍 地点</TabsTrigger>
         </TabsList>
 
-        {/* 宠友 Tab */}
         <TabsContent value="pets" className="space-y-3 mt-0">
           <div className="flex items-center justify-between">
             <Sheet>
@@ -197,7 +157,7 @@ export default function Discover() {
                 </div>
               </SheetContent>
             </Sheet>
-            <ViewToggle view={petView} setView={setPetView} />
+            <ViewToggle view={petView} setView={handlePetViewChange} />
           </div>
 
           {petView === 'list' ? (
@@ -230,11 +190,10 @@ export default function Discover() {
               ))}
             </div>
           ) : (
-            <div ref={petMapRef} className="w-full h-[55vh] rounded-xl overflow-hidden border" />
+            <LeafletMap key={`pet-map-${petMapKey}`} markers={petMarkers} />
           )}
         </TabsContent>
 
-        {/* 地点 Tab */}
         <TabsContent value="places" className="space-y-3 mt-0">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
@@ -251,10 +210,9 @@ export default function Discover() {
                 </button>
               )}
             </div>
-            <ViewToggle view={placeView} setView={setPlaceView} />
+            <ViewToggle view={placeView} setView={handlePlaceViewChange} />
           </div>
 
-          {/* Category chips */}
           <div className="flex flex-wrap gap-1.5">
             {PLACE_CATEGORIES.map(cat => (
               <Badge key={cat} variant={visibleCategories.has(cat) ? 'default' : 'outline'} className="cursor-pointer text-xs" onClick={() => toggleCategory(cat)}>
@@ -307,12 +265,11 @@ export default function Discover() {
               )}
             </div>
           ) : (
-            <div ref={placeMapRef} className="w-full h-[55vh] rounded-xl overflow-hidden border" />
+            <LeafletMap key={`place-map-${placeMapKey}`} markers={placeMarkers} />
           )}
         </TabsContent>
       </Tabs>
 
-      {/* Add Place Dialog */}
       <Dialog open={addPlaceOpen} onOpenChange={setAddPlaceOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>新增地点</DialogTitle></DialogHeader>
