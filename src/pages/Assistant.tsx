@@ -77,19 +77,50 @@ export default function Assistant() {
     // Reset @本条宠物
     setAtPetId('');
 
-    try {
-      // Generate reply (template mode since no Cloud)
-      await new Promise(r => setTimeout(r, 500 + Math.random() * 1000));
-
-      let replyText = '';
+    // Helper: generate local fallback reply
+    const generateFallback = (): string => {
       const category = detectCategory(text);
-
+      let replyText = '';
       if (images && images.length > 0) {
         replyText = '当前版本暂不解析图片，仅基于文字回答。\n\n' + getTemplateReply(category);
       } else if (pet) {
         replyText = `关于${pet.name}（${pet.species}${pet.breed ? '·' + pet.breed : ''}）：\n\n` + getTemplateReply(category);
       } else {
         replyText = getTemplateReply(category);
+      }
+      return replyText + '\n\n（演示模式）';
+    };
+
+    try {
+      // Try real AI first
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      const apiMessages = updated
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .slice(-10)
+        .map(m => ({ role: m.role as 'user' | 'assistant', content: m.text }));
+
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: apiMessages,
+          context: pet ? { petName: pet.name } : undefined,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      const data = await res.json();
+
+      let replyText: string;
+      if (data.ok && data.reply) {
+        replyText = data.reply;
+        setAiOnline(true);
+      } else {
+        replyText = generateFallback();
+        setAiOnline(false);
       }
 
       const assistantMsg: AIChatMessage = {
@@ -101,14 +132,16 @@ export default function Assistant() {
       setMessages(prev => [...prev, assistantMsg]);
       addAIChatMessage(assistantMsg);
     } catch {
-      const errorMsg: AIChatMessage = {
+      // Network error / timeout / API not available → fallback
+      setAiOnline(false);
+      const fallbackMsg: AIChatMessage = {
         id: generateId(),
-        role: 'error',
-        text: '生成失败，请重试',
+        role: 'assistant',
+        text: generateFallback(),
         timestamp: Date.now(),
       };
-      setMessages(prev => [...prev, errorMsg]);
-      addAIChatMessage(errorMsg);
+      setMessages(prev => [...prev, fallbackMsg]);
+      addAIChatMessage(fallbackMsg);
     } finally {
       setIsLoading(false);
     }
