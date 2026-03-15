@@ -24,7 +24,7 @@ export default function Assistant() {
   const [atPetId, setAtPetId] = useState<string>('');
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [aiOnline] = useState(false); // No cloud = offline mode
+  const [aiOnline, setAiOnline] = useState(false);
   const [retrospectOpen, setRetrospectOpen] = useState(false);
   const [retrospectResult, setRetrospectResult] = useState<{ records: string[]; summary: string } | null>(null);
   const [atSelectOpen, setAtSelectOpen] = useState(false);
