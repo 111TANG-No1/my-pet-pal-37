@@ -5,9 +5,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return res.status(200).json({ ok: false, error: 'ANTHROPIC_API_KEY not configured' });
+    return res.status(200).json({ ok: false, error: 'OPENAI_API_KEY not configured' });
   }
 
   try {
@@ -19,35 +19,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Validate and truncate messages
     const sanitized = messages.slice(-20).map((m: any) => ({
-      role: ['user', 'assistant'].includes(m.role) ? m.role : 'user',
+      role: ['user', 'assistant', 'system'].includes(m.role) ? m.role : 'user',
       content: typeof m.content === 'string' ? m.content.slice(0, 2000) : '',
     }));
 
-    // Anthropic requires alternating user/assistant roles, ensure first message is user
-    const filtered = sanitized.filter((_, i) => {
-      if (i === 0) return sanitized[0].role === 'user';
-      return true;
-    });
-
     // Build system prompt
-    const systemPrompt = '你是一位专业友好的宠物AI助手，用中文简洁回答宠物相关问题（健康、喂养、训练等）。回复控制在200字以内。' +
-      (context?.petName ? `\n当前用户正在询问关于宠物"${context.petName}"的问题。` : '');
+    const systemMsg = {
+      role: 'system' as const,
+      content: '你是一位专业友好的宠物AI助手，用中文简洁回答宠物相关问题（健康、喂养、训练等）。回复控制在200字以内。' +
+        (context?.petName ? `\n当前用户正在询问关于宠物"${context.petName}"的问题。` : ''),
+    };
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'gpt-4o-mini',
+        messages: [systemMsg, ...sanitized],
         max_tokens: 500,
-        system: systemPrompt,
-        messages: filtered,
+        temperature: 0.7,
       }),
       signal: controller.signal,
     });
@@ -55,11 +51,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      return res.status(200).json({ ok: false, error: `Anthropic API error: ${response.status}` });
+      return res.status(200).json({ ok: false, error: `OpenAI API error: ${response.status}` });
     }
 
     const data = await response.json();
-    const reply = data.content?.[0]?.text?.trim() || '';
+    const reply = data.choices?.[0]?.message?.content?.trim() || '';
 
     if (!reply) {
       return res.status(200).json({ ok: false, error: 'Empty response from AI' });
