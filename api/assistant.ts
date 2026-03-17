@@ -17,15 +17,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const sanitized = messages.slice(-20)
-      .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-      .map((m: any) => ({
-        role: m.role as 'user' | 'assistant',
-        content: typeof m.content === 'string' ? m.content.slice(0, 2000) : '',
-      }));
+  .filter((m: any) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+  .map((m: any) => ({
+    role: m.role as 'user' | 'assistant',
+    content: m.content.slice(0, 2000),
+  }));
 
-    if (sanitized.length === 0 || sanitized[0].role !== 'user') {
-      return res.status(400).json({ ok: false, error: 'first message must be user' });
-    }
+// Ensure starts with user message
+const firstUserIdx = sanitized.findIndex((m: any) => m.role === 'user');
+const trimmed = firstUserIdx >= 0 ? sanitized.slice(firstUserIdx) : [];
+
+if (trimmed.length === 0) {
+  return res.status(400).json({ ok: false, error: 'no valid user message found' });
+}
 
     const systemPrompt = '你是一位专业友好的宠物AI助手，用中文简洁回答宠物相关问题（健康、喂养、训练等）。回复控制在200字以内。' +
       (context?.petName ? `\n当前用户正在询问关于宠物"${context.petName}"的问题。` : '');
@@ -44,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 500,
         system: systemPrompt,
-        messages: sanitized,
+        messages: trimmed,
       }),
       signal: controller.signal,
     });
