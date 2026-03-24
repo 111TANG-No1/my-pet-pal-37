@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { PetPhoto } from '@/types/pet';
 import { generateId } from '@/lib/storage';
+import { savePhotosToIDB, deletePhotoFromIDB } from '@/lib/photoDB';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface PhotoGalleryProps {
@@ -13,17 +14,20 @@ interface PhotoGalleryProps {
 export default function PhotoGallery({ photos, petId, onPhotosChange }: PhotoGalleryProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
+    setLoading(true);
     const newPhotos: PetPhoto[] = [];
     let processed = 0;
+
     Array.from(files).forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
         const img = new Image();
-        img.onload = () => {
+        img.onload = async () => {
           const canvas = document.createElement('canvas');
           const maxDim = 800;
           let w = img.width, h = img.height;
@@ -34,26 +38,48 @@ export default function PhotoGallery({ photos, petId, onPhotosChange }: PhotoGal
           canvas.width = w;
           canvas.height = h;
           canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
-          newPhotos.push({
+          const photo: PetPhoto = {
             id: generateId(),
             petId,
             url: canvas.toDataURL('image/jpeg', 0.7),
             createdAt: Date.now(),
-          });
+          };
+          newPhotos.push(photo);
           processed++;
           if (processed === files.length) {
-            onPhotosChange([...photos, ...newPhotos]);
+            try {
+              await savePhotosToIDB(newPhotos);
+              onPhotosChange([...photos, ...newPhotos]);
+            } catch (err) {
+              console.error('图片保存失败:', err);
+              alert('图片保存失败，请重试');
+            } finally {
+              setLoading(false);
+            }
           }
         };
+        img.onerror = () => {
+          processed++;
+          if (processed === files.length) setLoading(false);
+        };
         img.src = reader.result as string;
+      };
+      reader.onerror = () => {
+        processed++;
+        if (processed === files.length) setLoading(false);
       };
       reader.readAsDataURL(file);
     });
     e.target.value = '';
   };
 
-  const removePhoto = (id: string) => {
-    onPhotosChange(photos.filter(p => p.id !== id));
+  const removePhoto = async (id: string) => {
+    try {
+      await deletePhotoFromIDB(id);
+      onPhotosChange(photos.filter(p => p.id !== id));
+    } catch (err) {
+      console.error('删除图片失败:', err);
+    }
   };
 
   return (
@@ -77,10 +103,17 @@ export default function PhotoGallery({ photos, petId, onPhotosChange }: PhotoGal
         ))}
         <button
           onClick={() => inputRef.current?.click()}
-          className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+          disabled={loading}
+          className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
         >
-          <Plus className="h-5 w-5" />
-          <span className="text-xs">添加</span>
+          {loading ? (
+            <span className="text-xs">处理中…</span>
+          ) : (
+            <>
+              <Plus className="h-5 w-5" />
+              <span className="text-xs">添加</span>
+            </>
+          )}
         </button>
       </div>
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
