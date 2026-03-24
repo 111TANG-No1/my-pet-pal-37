@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Edit, Trash2, Plus, X, Bell } from 'lucide-react';
 import { getPetById, updatePet, generateId } from '@/lib/storage';
+import { loadPhotosFromIDB } from '@/lib/photoDB';
 import { COMMON_ALLERGIES, PERSONALITY_OPTIONS, SPECIES_OPTIONS } from '@/lib/mock-data';
 import { Pet, MedicalRecord, Reminder } from '@/types/pet';
 import { Button } from '@/components/ui/button';
@@ -34,15 +35,19 @@ export default function PetDetail() {
     if (id) {
       const p = getPetById(id);
       if (p) {
-        // Migrate old data missing new fields
-        setPet({ temperamentNote: '', photos: [], ...p });
+        // Load photos from IndexedDB instead of localStorage
+        loadPhotosFromIDB(id).then(photos => {
+          setPet({ temperamentNote: '', ...p, photos });
+        });
       } else navigate('/');
     }
   }, [id]);
 
   const save = (updated: Pet) => {
+    // Save pet without photos to localStorage (photos live in IndexedDB)
+    const { photos, ...petWithoutPhotos } = updated;
     setPet(updated);
-    updatePet(updated);
+    updatePet({ ...petWithoutPhotos, photos: [] });
   };
 
   if (!pet) return null;
@@ -333,7 +338,7 @@ export default function PetDetail() {
             <PhotoGallery
               photos={pet.photos || []}
               petId={pet.id}
-              onPhotosChange={(photos) => save({ ...pet, photos })}
+              onPhotosChange={(photos) => setPet(prev => prev ? { ...prev, photos } : prev)}
             />
           </Card>
         </TabsContent>
